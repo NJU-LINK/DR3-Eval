@@ -13,7 +13,7 @@
 </p>
 
 <p align="center">
-  <b>中文</b> | <a href="README_EN.md">English</a>
+  <b>中文</b> | <a href="README.md">English</a>
 </p>
 
 ---
