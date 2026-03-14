@@ -45,6 +45,9 @@ htmlcov/
 report.html
 .pytest_cache/
 
+# Scripts
+scripts/
+
 # Hydra outputs
 outputs/
 multirun/
