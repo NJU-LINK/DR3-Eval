@@ -102,13 +102,13 @@
 </nav>
 
 <!-- Hero -->
-<section class="relative pt-32 pb-10 px-4 text-center z-10">
+<section class="relative pt-32 pb-20 px-4 text-center z-10">
   <div class="max-w-3xl mx-auto">
     <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 border border-blue-100 text-blue-700 text-sm font-medium animate-float mb-6">
       <span class="w-2 h-2 bg-blue-600 rounded-full animate-pulse"></span>
       <span data-i18n="hero_badge">Realistic · Reproducible · Deep Research Evaluation</span>
     </div>
-    <h1 class="font-display text-5xl md:text-6xl font-bold mb-4"><span class="text-gradient">DR³-Eval</span></h1>
+    <h1 class="font-display text-5xl md:text-6xl font-bold mb-4"><span class="text-gradient">DR<sup>3</sup>-Eval</span></h1>
     <p class="text-lg text-slate-500 mb-8" data-i18n="hero_subtitle">Towards Realistic and Reproducible Deep Research Evaluation</p>
     <!-- CTA buttons — centered -->
     <div class="flex flex-wrap justify-center gap-3 mb-8">
@@ -117,6 +117,13 @@
       <a href="https://github.com/NJU-LINK/DR3-Eval" target="_blank" class="btn-outline px-5 py-2.5 rounded-full text-sm font-semibold inline-flex items-center gap-2">💻 GitHub</a>
       <a href="https://huggingface.co/datasets/NJU-LINK/DR3-Eval" target="_blank" class="btn-outline px-5 py-2.5 rounded-full text-sm font-semibold inline-flex items-center gap-2">🤗 <span data-i18n="btn_dataset">Dataset</span></a>
       <button onclick="document.getElementById('submitModal').classList.add('active')" class="btn-outline px-5 py-2.5 rounded-full text-sm font-semibold inline-flex items-center gap-2">📮 <span data-i18n="btn_submit">Submit</span></button>
+    </div>
+    <!-- Inline stats — centered -->
+    <div class="flex flex-wrap justify-center gap-6 text-sm text-slate-500 mb-10">
+      <div><span class="font-bold text-slate-800 text-lg">100</span> <span data-i18n="stat_tasks">Tasks</span></div>
+      <div><span class="font-bold text-slate-800 text-lg">13</span> <span data-i18n="stat_subdomains">Sub-domains</span></div>
+      <div><span class="font-bold text-slate-800 text-lg">68%</span> <span data-i18n="stat_multimodal">Multimodal</span></div>
+      <div><span class="font-bold text-slate-800 text-lg">2.24</span> <span data-i18n="stat_files">Files/Task</span></div>
     </div>
     <!-- Metric cards — centered -->
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl mx-auto">
@@ -156,9 +163,9 @@
     <h2 class="st">📏 <span data-i18n="sec_metrics">Evaluation Metrics</span></h2>
     <p class="sd" data-i18n="sec_metrics_sub">5 complementary metrics across two dimensions to assess deep research agent performance.</p>
   </div>
-  <div class="grid md:grid-cols-2 gap-8 items-stretch">
-    <div class="bg-white rounded-2xl border border-slate-200 p-6 soft-shadow flex items-center">
-      <div id="echartRadar" style="width:100%;height:420px"></div>
+  <div class="grid gap-6 items-center" style="grid-template-columns:2fr 3fr">
+    <div class="flex items-center justify-center">
+      <div id="echartRadar" style="width:100%;height:380px"></div>
     </div>
     <div class="flex flex-col gap-4">
       <div class="rounded-2xl p-4 soft-shadow" style="background:#eef4ff;border:1px solid #c7d9f5">
@@ -558,35 +565,93 @@ document.addEventListener('DOMContentLoaded', function() {
   function radialColor(hsl,i,t){var l=hsl[2]+(i/(t-1))*28;return'hsl('+hsl[0]+','+hsl[1]+'%,'+Math.min(l,92)+'%)'}
   function wrapLabel(n,m){m=m||12;var w=n.split(' '),l='',r='';w.forEach(function(x){if((l+x).length>m){r+=l.trim()+'\n';l=x+' '}else{l+=x+' '}});r+=l.trim();return r}
   var hsl={blue:rgbToHsl(87,143,195),gold:rgbToHsl(211,177,104),pink:rgbToHsl(193,123,144)};
-  var oL={show:true,position:'inside',rotate:'radial',fontFamily:'Times New Roman',fontSize:11,color:'#000',formatter:function(p){return wrapLabel(p.name)}};
-  var cL={show:true,position:'inside',rotate:'radial',fontFamily:'Times New Roman',fontSize:11,fontWeight:'bold',color:'#000',lineHeight:12,formatter:function(p){return wrapLabel(p.name)+'\n'+p.percent+'%'}};
+  // 外部标签样式 - 强制所有标签显示
+  var outerLabel={show:true,position:'outside',fontFamily:'Times New Roman',fontSize:10,color:'#333',overflow:'break',width:52,formatter:function(p){return p.name+'\n'+p.percent+'%'}};
+  var innerLabel={show:true,position:'inside',fontFamily:'Times New Roman',fontSize:11,fontWeight:'bold',color:'#000',formatter:function(p){return p.name+'\n'+p.percent+'%'}};
+  var lineConf={show:true,length:5,length2:6,smooth:0.5};
+
   var domainChart=echarts.init(document.getElementById('echartDomain'));
-  domainChart.setOption({tooltip:{show:false},series:[
-    {type:'pie',radius:[0,'35%'],label:cL,labelLine:{show:false},data:[{value:42,name:'Humanities',itemStyle:{color:'rgb(87,143,195)'}},{value:36,name:'Technology',itemStyle:{color:'rgb(211,177,104)'}},{value:22,name:'Economy',itemStyle:{color:'rgb(193,123,144)'}}]},
-    {type:'pie',radius:['42%','72%'],label:oL,labelLine:{show:false},itemStyle:{borderRadius:6,borderColor:'#fff',borderWidth:4},data:[
-      {value:20,name:'Policy',itemStyle:{color:radialColor(hsl.blue,0,5)}},{value:9,name:'Arts & Culture',itemStyle:{color:radialColor(hsl.blue,1,5)}},{value:8,name:'Education',itemStyle:{color:radialColor(hsl.blue,2,5)}},{value:3,name:'Social',itemStyle:{color:radialColor(hsl.blue,3,5)}},{value:2,name:'Geography',itemStyle:{color:radialColor(hsl.blue,4,5)}},
-      {value:14,name:'Computer Science',itemStyle:{color:radialColor(hsl.gold,0,4)}},{value:11,name:'Healthcare',itemStyle:{color:radialColor(hsl.gold,1,4)}},{value:8,name:'Physics',itemStyle:{color:radialColor(hsl.gold,2,4)}},{value:3,name:'Life Sciences',itemStyle:{color:radialColor(hsl.gold,3,4)}},
-      {value:9,name:'Finance',itemStyle:{color:radialColor(hsl.pink,0,4)}},{value:8,name:'Industry',itemStyle:{color:radialColor(hsl.pink,1,4)}},{value:4,name:'Commerce',itemStyle:{color:radialColor(hsl.pink,2,4)}},{value:1,name:'Agriculture',itemStyle:{color:radialColor(hsl.pink,3,4)}}
-    ]}
-  ]});
-  function wrapC(n,m){m=m||12;var r='',l='';for(var i=0;i<n.length;i++){l+=n[i];if(l.length>=m){r+=l+'\n';l=''}}r+=l;return r}
-  var cLF={show:true,position:'inside',rotate:'radial',fontFamily:'Times New Roman',fontSize:11,fontWeight:'bold',color:'#000',lineHeight:12,align:'center',formatter:function(p){return wrapC(p.name)+'\n'+p.percent+'%'}};
-  var oLF={show:true,position:'inside',rotate:'radial',fontFamily:'Times New Roman',fontSize:11,color:'#000',align:'center',formatter:function(p){return wrapC(p.name)}};
+  domainChart.setOption({
+    tooltip:{trigger:'item',formatter:'{b}: {d}%'},
+    series:[
+      {type:'pie',radius:[0,'30%'],
+        label:{show:true,position:'inside',fontFamily:'Times New Roman',fontSize:11,fontWeight:'bold',color:'#000',formatter:function(p){return p.name+'\n'+p.percent+'%'}},
+        labelLine:{show:false},
+        data:[
+          {value:42,name:'Humanities',itemStyle:{color:'rgb(87,143,195)'}},
+          {value:36,name:'Technology',itemStyle:{color:'rgb(211,177,104)'}},
+          {value:22,name:'Economy',itemStyle:{color:'rgb(193,123,144)'}}
+        ]
+      },
+      {type:'pie',radius:['36%','58%'],
+        label:outerLabel,
+        labelLine:lineConf,
+        itemStyle:{borderRadius:4,borderColor:'#fff',borderWidth:3},
+        data:[
+          {value:20,name:'Policy',itemStyle:{color:radialColor(hsl.blue,0,5)}},
+          {value:9,name:'Arts &\nCulture',itemStyle:{color:radialColor(hsl.blue,1,5)}},
+          {value:8,name:'Education',itemStyle:{color:radialColor(hsl.blue,2,5)}},
+          {value:3,name:'Social',itemStyle:{color:radialColor(hsl.blue,3,5)}},
+          {value:2,name:'Geography',itemStyle:{color:radialColor(hsl.blue,4,5)}},
+          {value:14,name:'Comp.Sci.',itemStyle:{color:radialColor(hsl.gold,0,4)}},
+          {value:11,name:'Healthcare',itemStyle:{color:radialColor(hsl.gold,1,4)}},
+          {value:8,name:'Physics',itemStyle:{color:radialColor(hsl.gold,2,4)}},
+          {value:3,name:'Life Sci.',itemStyle:{color:radialColor(hsl.gold,3,4)}},
+          {value:9,name:'Finance',itemStyle:{color:radialColor(hsl.pink,0,4)}},
+          {value:8,name:'Industry',itemStyle:{color:radialColor(hsl.pink,1,4)}},
+          {value:4,name:'Commerce',itemStyle:{color:radialColor(hsl.pink,2,4)}},
+          {value:1,name:'Agriculture',itemStyle:{color:radialColor(hsl.pink,3,4)}}
+        ]
+      }
+    ]
+  });
+
   var cs=['#9BDFDF','#FFE2CE','#C4D8E9','#F9DF91','#7FA2EE','#BEBCDF'];
   var oc={Document:['#9BDFDF','#AEEAEA','#83DADA','#5CCCCC','#33BABA'],Image:['#FFE2CE','#FFD3B2','#FFC59A'],Video:['#C4D8E9'],Audio:['#F9DF91'],Data:['#9DBCF5','#87AEEF'],Other:['#BEBCDF']};
+  var outerLabelF={show:true,position:'outside',fontFamily:'Times New Roman',fontSize:10,color:'#333',overflow:'break',width:48,formatter:function(p){return p.name+'\n'+p.percent+'%'}};
+
   var fileChart=echarts.init(document.getElementById('echartFiletype'));
-  fileChart.setOption({tooltip:{show:false},series:[
-    {type:'pie',radius:[0,'38%'],label:cLF,labelLine:{show:false},data:[{value:103,name:'Document',itemStyle:{color:cs[0]}},{value:62,name:'Image',itemStyle:{color:cs[1]}},{value:31,name:'Video',itemStyle:{color:cs[2]}},{value:4,name:'Audio',itemStyle:{color:cs[3]}},{value:14,name:'Data',itemStyle:{color:'#7FA2EE'}},{value:10,name:'Other',itemStyle:{color:cs[5]}}]},
-    {type:'pie',radius:['45%','75%'],label:oLF,labelLine:{show:false},itemStyle:{borderRadius:6,borderColor:'#fff',borderWidth:4},data:[
-      {value:76,name:'PDF',itemStyle:{color:oc.Document[0]}},{value:10,name:'Markdown',itemStyle:{color:oc.Document[1]}},{value:7,name:'Word',itemStyle:{color:oc.Document[2]}},{value:5,name:'Text',itemStyle:{color:oc.Document[3]}},{value:5,name:'PPT',itemStyle:{color:oc.Document[4]}},
-      {value:37,name:'PNG',itemStyle:{color:oc.Image[0]}},{value:21,name:'JPEG',itemStyle:{color:oc.Image[1]}},{value:4,name:'WebP',itemStyle:{color:oc.Image[2]}},{value:31,name:'MP4',itemStyle:{color:oc.Video[0]}},{value:4,name:'MP3',itemStyle:{color:oc.Audio[0]}},
-      {value:7,name:'CSV',itemStyle:{color:oc.Data[0]}},{value:7,name:'Excel',itemStyle:{color:oc.Data[1]}},{value:10,name:'HTML',itemStyle:{color:oc.Other[0]}}
-    ]}
-  ]});
+  fileChart.setOption({
+    tooltip:{trigger:'item',formatter:'{b}: {d}%'},
+    series:[
+      {type:'pie',radius:[0,'32%'],
+        label:{show:true,position:'inside',fontFamily:'Times New Roman',fontSize:11,fontWeight:'bold',color:'#000',formatter:function(p){return p.name+'\n'+p.percent+'%'}},
+        labelLine:{show:false},
+        data:[
+          {value:103,name:'Document',itemStyle:{color:cs[0]}},
+          {value:62,name:'Image',itemStyle:{color:cs[1]}},
+          {value:31,name:'Video',itemStyle:{color:cs[2]}},
+          {value:4,name:'Audio',itemStyle:{color:cs[3]}},
+          {value:14,name:'Data',itemStyle:{color:'#7FA2EE'}},
+          {value:10,name:'Other',itemStyle:{color:cs[5]}}
+        ]
+      },
+      {type:'pie',radius:['38%','58%'],
+        label:outerLabelF,
+        labelLine:lineConf,
+        itemStyle:{borderRadius:4,borderColor:'#fff',borderWidth:3},
+        data:[
+          {value:76,name:'PDF',itemStyle:{color:oc.Document[0]}},
+          {value:10,name:'Markdown',itemStyle:{color:oc.Document[1]}},
+          {value:7,name:'Word',itemStyle:{color:oc.Document[2]}},
+          {value:5,name:'Text',itemStyle:{color:oc.Document[3]}},
+          {value:5,name:'PPT',itemStyle:{color:oc.Document[4]}},
+          {value:37,name:'PNG',itemStyle:{color:oc.Image[0]}},
+          {value:21,name:'JPEG',itemStyle:{color:oc.Image[1]}},
+          {value:4,name:'WebP',itemStyle:{color:oc.Image[2]}},
+          {value:31,name:'MP4',itemStyle:{color:oc.Video[0]}},
+          {value:4,name:'MP3',itemStyle:{color:oc.Audio[0]}},
+          {value:7,name:'CSV',itemStyle:{color:oc.Data[0]}},
+          {value:7,name:'Excel',itemStyle:{color:oc.Data[1]}},
+          {value:10,name:'HTML',itemStyle:{color:oc.Other[0]}}
+        ]
+      }
+    ]
+  });
   var filesChart=echarts.init(document.getElementById('echartFiles'));
   filesChart.setOption({tooltip:{trigger:'axis',axisPointer:{type:'shadow'}},grid:{left:'12%',right:'8%',top:'8%',bottom:'15%'},xAxis:{type:'category',data:['1','2','3','4','5','6'],name:'Files',nameLocation:'center',nameGap:28,nameTextStyle:{fontFamily:'Times New Roman',fontSize:13},axisLabel:{fontFamily:'Times New Roman',fontSize:12}},yAxis:{type:'value',name:'Cases',nameTextStyle:{fontFamily:'Times New Roman',fontSize:13},axisLabel:{fontFamily:'Times New Roman',fontSize:12}},series:[{type:'bar',data:[22,35,35,6,1,1],barWidth:'50%',itemStyle:{color:'#8FAFD4',borderRadius:[3,3,0,0]},label:{show:true,position:'top',fontSize:11,fontFamily:'Times New Roman'}}]});
   var radarChart=echarts.init(document.getElementById('echartRadar'));
-  radarChart.setOption({legend:{data:['Claude Sonnet 4','GLM-4.7','GLM-4.6','Gemini-2.5-Pro','GPT-4.1','Qwen3-235B','Qwen3-32B','Qwen2.5-72B'],bottom:0,textStyle:{fontSize:10},itemWidth:12,itemHeight:8,itemGap:6},radar:{indicator:[{name:'IR',max:100},{name:'CC',max:100},{name:'FA',max:100},{name:'IF',max:100},{name:'DQ',max:100}],radius:'55%',center:['50%','45%'],axisName:{fontSize:13,fontWeight:'bold'},splitArea:{areaStyle:{color:['#fff','#f8fafc','#f1f5f9','#e8edf3','#dfe6ee']}}},series:[{type:'radar',data:[
+  radarChart.setOption({backgroundColor:'transparent',legend:{data:['Claude Sonnet 4','GLM-4.7','GLM-4.6','Gemini-2.5-Pro','GPT-4.1','Qwen3-235B','Qwen3-32B','Qwen2.5-72B'],bottom:0,textStyle:{fontSize:10},itemWidth:12,itemHeight:8,itemGap:6},radar:{indicator:[{name:'IR',max:100},{name:'CC',max:100},{name:'FA',max:100},{name:'IF',max:100},{name:'DQ',max:100}],radius:'55%',center:['50%','45%'],axisName:{fontSize:13,fontWeight:'bold'},splitArea:{areaStyle:{color:['#fff','#f8fafc','#f1f5f9','#e8edf3','#dfe6ee']}}},series:[{type:'radar',data:[
     {value:[57.0,54.8,82.7,89.2,71.5],name:'Claude Sonnet 4',lineStyle:{color:'#2563eb',width:2},itemStyle:{color:'#2563eb'},areaStyle:{color:'rgba(37,99,235,0.08)'}},
     {value:[55.0,55.9,82.1,89.3,71.8],name:'GLM-4.7',lineStyle:{color:'#dc2626',width:2},itemStyle:{color:'#dc2626'},areaStyle:{color:'rgba(220,38,38,0.08)'}},
     {value:[52.6,52.0,82.3,87.2,69.3],name:'GLM-4.6',lineStyle:{color:'#ea580c',width:1.5},itemStyle:{color:'#ea580c'},areaStyle:{color:'rgba(234,88,12,0.05)'}},
