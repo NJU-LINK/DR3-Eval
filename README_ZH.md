@@ -234,11 +234,14 @@ uv run python eval.py all \
 如果您觉得本工作有用，请引用：
 
 ```bibtex
-@article{dr3eval2026,
-  title={DR3-Eval: Towards Realistic and Reproducible Deep Research Evaluation},
-  author={},
-  journal={arXiv preprint arXiv:2604.14683},
-  year={2026}
+@misc{xie2026dr3evalrealisticreproducibledeep,
+      title={DR$^{3}$-Eval: Towards Realistic and Reproducible Deep Research Evaluation}, 
+      author={Qianqian Xie and Qingheng Xiong and He Zhu and Tiantian Xia and Xueming Han and Fanyu Meng and Jiakai Wang and Zhiqi Bai and Chengkang Jiang and Zhaohui Wang and Yubin Guo and Yuqing Wen and Jiayang Mao and Zijie Zhang and Shihao Li and Yanghai Wang and Yuxiang Ren and Junlan Feng and Jiaheng Liu},
+      year={2026},
+      eprint={2604.14683},
+      archivePrefix={arXiv},
+      primaryClass={cs.AI},
+      url={https://arxiv.org/abs/2604.14683}, 
 }
 ```
 
