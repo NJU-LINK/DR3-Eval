@@ -1,8 +1,11 @@
 <h1 align="center">DR<sup>3</sup>-Eval: Towards Realistic and Reproducible<br>Deep Research Evaluation</h1>
 
 <p align="center">
-  <a href="https://arxiv.org/abs/xxxx.xxxxx">
+  <a href="https://arxiv.org/abs/2604.14683">
     <img src="https://img.shields.io/badge/Paper-ArXiv-red.svg" alt="Arxiv Paper">
+  </a>
+  <a href="https://huggingface.co/papers/2604.14683">
+    <img src="https://img.shields.io/badge/🤗%20HuggingFace-Paper-orange.svg" alt="HuggingFace Paper">
   </a>
   <a href="https://huggingface.co/datasets/NJU-LINK/DR3-Eval">
     <img src="https://img.shields.io/badge/🤗%20HuggingFace-Dataset-yellow.svg" alt="HuggingFace Dataset">
@@ -234,7 +237,7 @@ If you find this work useful, please cite:
 @article{dr3eval2026,
   title={DR3-Eval: Towards Realistic and Reproducible Deep Research Evaluation},
   author={},
-  journal={arXiv preprint arXiv:xxxx.xxxxx},
+  journal={arXiv preprint arXiv:2604.14683},
   year={2026}
 }
 ```
