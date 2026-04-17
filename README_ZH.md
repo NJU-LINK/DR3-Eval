@@ -256,7 +256,3 @@ uv run python eval.py all \
 ## 📧 联系方式
 
 如有问题，请通过 GitHub Issues 联系我们。
-
----
-
-**NJU-LINK Team, Nanjing University**

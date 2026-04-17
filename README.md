@@ -256,7 +256,3 @@ The DR³-Agent in this project is built on the [MiroFlow](https://github.com/Mir
 ## 📧 Contact
 
 For questions, please reach out via GitHub Issues.
-
----
-
-**NJU-LINK Team, Nanjing University**
