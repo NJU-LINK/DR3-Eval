@@ -97,7 +97,7 @@ body{font-family:Inter,'Noto Sans SC',sans-serif;background:#fafbfc;color:#1e293
 <h2 class="st">&#x1F4CF; Evaluation Metrics</h2>
 <p class="sd">5 complementary metrics across two dimensions to assess deep research agent performance.</p>
 <div class="grid md:grid-cols-2 gap-8 items-stretch">
-<div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm flex items-center"><div id="echartRadar" style="width:100%;height:420px"></div></div>
+<div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm flex items-center"><div id="echartAvgBar" style="width:100%;height:420px"></div></div>
 <div class="flex flex-col gap-3">
 <div class="rounded-xl p-3" style="background:#eef4ff;border:1px solid #c7d9f5">
 <h3 class="text-xs font-bold text-blue-700 mb-2">&#x1F50D; Information Seeking</h3>
@@ -389,26 +389,27 @@ document.addEventListener('DOMContentLoaded', function(){
     series:[{type:'bar',data:[22,35,35,6,1,1],barWidth:'50%',itemStyle:{color:'#8FAFD4',borderRadius:[3,3,0,0]},label:{show:true,position:'top',fontSize:11,fontFamily:'Times New Roman'}}]
   });
 
-  // Radar chart
-  var radarChart=echarts.init(document.getElementById('echartRadar'));
-  radarChart.setOption({
-    legend:{data:['Claude Sonnet 4','GLM-4.7','GLM-4.6','Gemini-2.5-Pro','GPT-4.1','Qwen3-235B','Qwen3-32B','Qwen2.5-72B'],bottom:0,textStyle:{fontSize:10},itemWidth:12,itemHeight:8,itemGap:6},
-    radar:{indicator:[
-      {name:'IR',max:100},{name:'CC',max:100},{name:'FA',max:100},{name:'IF',max:100},{name:'DQ',max:100}
-    ],radius:'55%',center:['50%','45%'],axisName:{fontSize:13,fontWeight:'bold'},splitArea:{areaStyle:{color:['#fff','#f8fafc','#f1f5f9','#e8edf3','#dfe6ee']}}},
-    series:[{type:'radar',data:[
-      {value:[57.0,54.8,82.7,89.2,71.5],name:'Claude Sonnet 4',lineStyle:{color:'#2563eb',width:2},itemStyle:{color:'#2563eb'},areaStyle:{color:'rgba(37,99,235,0.08)'}},
-      {value:[55.0,55.9,82.1,89.3,71.8],name:'GLM-4.7',lineStyle:{color:'#dc2626',width:2},itemStyle:{color:'#dc2626'},areaStyle:{color:'rgba(220,38,38,0.08)'}},
-      {value:[52.6,52.0,82.3,87.2,69.3],name:'GLM-4.6',lineStyle:{color:'#ea580c',width:1.5},itemStyle:{color:'#ea580c'},areaStyle:{color:'rgba(234,88,12,0.05)'}},
-      {value:[45.7,44.3,80.1,85.8,67.2],name:'Gemini-2.5-Pro',lineStyle:{color:'#059669',width:1.5},itemStyle:{color:'#059669'},areaStyle:{color:'rgba(5,150,105,0.05)'}},
-      {value:[40.8,41.2,61.5,83.7,64.8],name:'GPT-4.1',lineStyle:{color:'#7c3aed',width:1.5},itemStyle:{color:'#7c3aed'},areaStyle:{color:'rgba(124,58,237,0.05)'}},
-      {value:[43.5,43.8,50.8,84.9,65.1],name:'Qwen3-235B',lineStyle:{color:'#0891b2',width:1},itemStyle:{color:'#0891b2'}},
-      {value:[37.2,38.2,56.1,78.9,61.5],name:'Qwen3-32B',lineStyle:{color:'#ca8a04',width:1},itemStyle:{color:'#ca8a04'}},
-      {value:[34.1,35.7,53.2,76.8,59.2],name:'Qwen2.5-72B',lineStyle:{color:'#9ca3af',width:1},itemStyle:{color:'#9ca3af'}}
-    ]}]
+  // Average Score Bar Chart (128k scale)
+  var avgBarChart=echarts.init(document.getElementById('echartAvgBar'));
+  avgBarChart.setOption({
+    title:{text:'Average Score (128k)',left:'center',top:10,textStyle:{fontSize:14,fontWeight:'bold'}},
+    tooltip:{trigger:'axis',axisPointer:{type:'shadow'},formatter:function(p){return p[0].name+': '+p[0].value.toFixed(1)}},
+    grid:{left:'3%',right:'8%',top:'15%',bottom:'3%',containLabel:true},
+    xAxis:{type:'value',min:40,max:75,axisLabel:{fontSize:11},splitLine:{lineStyle:{type:'dashed'}}},
+    yAxis:{type:'category',data:['Qwen2.5-72B','Qwen3-32B','Qwen3-235B','GPT-4.1','Gemini-2.5-Pro','GLM-4.6','GLM-4.7','Claude Sonnet 4'],axisLabel:{fontSize:11,fontWeight:function(v,i){return i>=6?'bold':'normal'}},axisTick:{show:false}},
+    series:[{type:'bar',data:[
+      {value:47.6,itemStyle:{color:'#9ca3af'}},
+      {value:50.1,itemStyle:{color:'#ca8a04'}},
+      {value:53.8,itemStyle:{color:'#0891b2'}},
+      {value:53.9,itemStyle:{color:'#7c3aed'}},
+      {value:59.4,itemStyle:{color:'#059669'}},
+      {value:64.5,itemStyle:{color:'#ea580c'}},
+      {value:66.9,itemStyle:{color:'#dc2626'}},
+      {value:67.5,itemStyle:{color:'#2563eb'}}
+    ],barWidth:'60%',label:{show:true,position:'right',fontSize:12,fontWeight:'bold',formatter:function(p){return p.value.toFixed(1)}}}]
   });
 
-  window.addEventListener('resize',function(){domainChart.resize();fileChart.resize();filesChart.resize();radarChart.resize()});
+  window.addEventListener('resize',function(){domainChart.resize();fileChart.resize();filesChart.resize();avgBarChart.resize()});
 });
 </script>
 </body></html>
