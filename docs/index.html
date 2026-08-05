@@ -1,412 +1,47 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>DR3-Eval</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:Inter,'Noto Sans SC',sans-serif;background:#fafbfc;color:#1e293b}
-.btn-primary{background:linear-gradient(135deg,#2563eb,#4f46e5);color:#fff;transition:.3s;text-decoration:none}
-.btn-primary:hover{transform:translateY(-1px);box-shadow:0 8px 20px -5px rgba(37,99,235,.3)}
-.btn-outline{border:1px solid #cbd5e1;color:#475569;background:#fff;transition:.3s;text-decoration:none}
-.btn-outline:hover{border-color:#2563eb;color:#2563eb}
-.best-val{font-weight:800;color:#1e40af}
-.second-val{font-weight:600;text-decoration:underline;color:#6d28d9}
-.lang-btn{padding:4px 12px;border-radius:99px;font-size:13px;font-weight:500;cursor:pointer;border:1px solid transparent;transition:.3s;background:transparent}
-.lang-btn.active{background:#2563eb;color:#fff}
-.lang-btn:not(.active){color:#64748b;border-color:#e2e8f0}
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;display:none;align-items:center;justify-content:center;padding:1rem}
-.modal-overlay.active{display:flex}
-.ltable{width:100%;border-collapse:collapse;font-size:12px}
-.ltable th{background:#f8fafc;font-weight:600;padding:8px 5px;text-align:center;border-bottom:2px solid #e2e8f0;white-space:nowrap}
-.ltable td{padding:6px 5px;text-align:center;border-bottom:1px solid #f1f5f9}
-.ltable tbody tr:hover{background:#f8fafc}
-.ltable .mn{text-align:left;font-weight:600;padding-left:10px;white-space:nowrap;max-width:110px}
-.ltable .sep{border-right:1px dashed #cbd5e1}
-.fcard{border-left:4px solid;padding:14px 18px;border-radius:10px}
-.st{font-size:1.75rem;font-weight:700;text-align:center;margin-bottom:.5rem}
-.sd{text-align:center;color:#64748b;margin-bottom:2rem;max-width:42rem;margin-left:auto;margin-right:auto;font-size:.875rem}
-.stage-card{position:relative;padding-left:2rem;margin-bottom:1.5rem}
-.stage-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(to bottom,#2563eb,#7c3aed);border-radius:2px}
-.ana-row{display:flex;gap:1.5rem;align-items:stretch;margin-bottom:2.5rem}
-.ana-fig{flex:0 0 50%;max-width:50%;min-width:0}
-.ana-fig img{width:100%;height:auto;border-radius:10px;border:1px solid #e2e8f0}
-.ana-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:.6rem}
-.ana-card{border-radius:.75rem;padding:.875rem 1rem;border:1px solid #e5e7eb}
-.ana-card h4{font-size:.85rem;font-weight:700;margin-bottom:.3rem}
-.ana-card p{font-size:.78rem;color:#64748b;line-height:1.5}
-.filter-btn{padding:5px 14px;border-radius:99px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid #e2e8f0;background:#fff;color:#64748b;transition:.2s}
-.filter-btn.active{background:#2563eb;color:#fff;border-color:#2563eb}
-.filter-btn:hover:not(.active){border-color:#93c5fd;color:#2563eb}
-.metric-card{border-radius:1rem;padding:1rem 1.25rem;transition:.3s}
-.metric-card:hover{box-shadow:0 4px 12px rgba(0,0,0,.05);transform:translateY(-2px)}
-.metric-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
-.htable{width:100%;border-collapse:collapse;font-size:13px}
-.htable th{background:#f8fafc;font-weight:600;padding:10px 8px;text-align:center;border-bottom:2px solid #e2e8f0;white-space:nowrap}
-.htable td{padding:8px;text-align:center;border-bottom:1px solid #f1f5f9}
-.htable tbody tr:hover{background:#f8fafc}
-.htable .mn{text-align:left;font-weight:600;padding-left:12px;white-space:nowrap}
-@media(max-width:768px){.ana-row{flex-direction:column}.ana-fig{max-width:100%;flex:auto}.ana-info{width:100%}}
-</style></head><body>
-
-<nav class="fixed top-0 w-full z-50 bg-white/90 backdrop-blur border-b border-slate-200/60">
-<div class="max-w-7xl mx-auto px-4 flex items-center justify-between h-14">
-<div class="flex items-center gap-2"><div class="w-7 h-7 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center font-bold text-white text-xs">D3</div><span class="font-bold text-lg">DR&sup3;-Eval</span></div>
-<div class="hidden md:flex items-center gap-5 text-sm font-medium text-slate-600">
-<a href="#statistics">Statistics</a>
-<a href="#metrics">Metrics</a>
-<a href="#leaderboard">Leaderboard</a>
-<a href="#construction">Construction</a>
-<a href="#analysis">Analysis</a>
-</div>
-<div class="flex items-center gap-1"><button class="lang-btn active" onclick="setLang('en')">EN</button><button class="lang-btn" onclick="setLang('zh')">中文</button></div>
-</div></nav>
-
-<!-- Hero -->
-<section class="pt-28 pb-14 px-4 text-center"><div class="max-w-3xl mx-auto">
-<h1 class="text-4xl md:text-5xl font-bold mb-3">DR<sup>3</sup>-Eval</h1>
-<p class="text-lg text-slate-500 mb-8" data-i18n="hero_subtitle">Towards Realistic and Reproducible Deep Research Evaluation</p>
-<div class="flex justify-center gap-3 mb-6">
-<a href="#leaderboard" class="btn-primary px-4 py-2 rounded-full text-sm font-semibold inline-flex items-center gap-1.5">&#x1F3C6; Leaderboard</a>
-<a href="https://arxiv.org/abs/2604.14683" target="_blank" class="btn-outline px-4 py-2 rounded-full text-sm font-semibold inline-flex items-center gap-1.5">&#x1F4C4; Arxiv</a>
-<a href="https://huggingface.co/papers/2604.14683" target="_blank" class="btn-outline px-4 py-2 rounded-full text-sm font-semibold inline-flex items-center gap-1.5">&#x1F917; HF Paper</a>
-<a href="https://github.com/NJU-LINK/DR3-Eval" target="_blank" class="btn-outline px-4 py-2 rounded-full text-sm font-semibold inline-flex items-center gap-1.5">&#x1F4BB; GitHub</a>
-<a href="https://huggingface.co/datasets/NJU-LINK/DR3-Eval" target="_blank" class="btn-outline px-4 py-2 rounded-full text-sm font-semibold inline-flex items-center gap-1.5">&#x1F917; Dataset</a>
-</div>
-<div class="flex flex-wrap justify-center gap-6 text-sm text-slate-500">
-<div><span class="font-bold text-slate-800 text-lg">100</span> Tasks</div>
-<div><span class="font-bold text-slate-800 text-lg">13</span> Sub-domains</div>
-<div><span class="font-bold text-slate-800 text-lg">68%</span> Multimodal</div>
-<div><span class="font-bold text-slate-800 text-lg">2.24</span> Files/Task</div>
-</div></div></section>
-
-<!-- Statistics -->
-<section id="statistics" class="py-14 px-4"><div class="max-w-6xl mx-auto">
-<h2 class="st">&#x1F4CA; Dataset Statistics</h2>
-<p class="sd">100 tasks (50 EN + 50 ZH), 13 sub-domains, 68% multimodal input.</p>
-<div class="grid md:grid-cols-3 gap-6">
-<div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm"><h3 class="text-sm font-bold text-center mb-2">Domain Distribution</h3><div id="echartDomain" style="width:100%;aspect-ratio:1;max-height:340px;margin:0 auto"></div></div>
-<div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm"><h3 class="text-sm font-bold text-center mb-2">File Type Distribution</h3><div id="echartFiletype" style="width:100%;aspect-ratio:1;max-height:340px;margin:0 auto"></div></div>
-<div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm"><h3 class="text-sm font-bold text-center mb-2">User Files Per Task</h3><div id="echartFiles" style="width:100%;aspect-ratio:1;max-height:340px;margin:0 auto"></div></div>
-</div>
-</div></section>
-
-<!-- Metrics -->
-<section id="metrics" class="py-14 px-4 bg-slate-50"><div class="max-w-6xl mx-auto">
-<h2 class="st">&#x1F4CF; Evaluation Metrics</h2>
-<p class="sd">5 complementary metrics across two dimensions to assess deep research agent performance.</p>
-<div class="grid md:grid-cols-2 gap-8 items-stretch">
-<div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm flex items-center"><div id="echartAvgBar" style="width:100%;height:420px"></div></div>
-<div class="flex flex-col gap-3">
-<div class="rounded-xl p-3" style="background:#eef4ff;border:1px solid #c7d9f5">
-<h3 class="text-xs font-bold text-blue-700 mb-2">&#x1F50D; Information Seeking</h3>
-<div class="flex flex-col gap-2">
-<div class="metric-card bg-white border border-slate-200"><div class="flex items-center gap-3 mb-1"><div class="metric-icon" style="background:#dbeafe">&#x1F4D6;</div><div class="font-bold text-sm text-slate-800">IR &mdash; Information Recall</div><span class="ml-auto text-sm font-bold text-blue-600">47.6</span></div><div class="w-full bg-blue-100 rounded-full h-1.5 mb-1"><div class="bg-blue-500 h-1.5 rounded-full" style="width:47.6%"></div></div><p class="text-xs text-slate-500">Coverage of key insights from user files and sandbox corpus.</p></div>
-<div class="metric-card bg-white border border-slate-200"><div class="flex items-center gap-3 mb-1"><div class="metric-icon" style="background:#dbeafe">&#x1F4CE;</div><div class="font-bold text-sm text-slate-800">CC &mdash; Citation Coverage</div><span class="ml-auto text-sm font-bold text-blue-600">39.0</span></div><div class="w-full bg-blue-100 rounded-full h-1.5 mb-1"><div class="bg-blue-500 h-1.5 rounded-full" style="width:39%"></div></div><p class="text-xs text-slate-500">Overlap between cited and required source documents.</p></div>
-</div></div>
-<div class="rounded-xl p-3" style="background:#fef2f8;border:1px solid #f0c6d9">
-<h3 class="text-xs font-bold text-pink-700 mb-2">&#x1F4DD; Report Generation</h3>
-<div class="flex flex-col gap-2">
-<div class="metric-card bg-white border border-slate-200"><div class="flex items-center gap-3 mb-1"><div class="metric-icon" style="background:#fce7f3">&#x2705;</div><div class="font-bold text-sm text-slate-800">FA &mdash; Factual Accuracy</div><span class="ml-auto text-sm font-bold text-pink-600">67.3</span></div><div class="w-full bg-pink-100 rounded-full h-1.5 mb-1"><div class="bg-pink-500 h-1.5 rounded-full" style="width:67.3%"></div></div><p class="text-xs text-slate-500">Factual correctness of claim-source pairs via entailment.</p></div>
-<div class="metric-card bg-white border border-slate-200"><div class="flex items-center gap-3 mb-1"><div class="metric-icon" style="background:#fce7f3">&#x1F4CB;</div><div class="font-bold text-sm text-slate-800">IF &mdash; Instruction Following</div><span class="ml-auto text-sm font-bold text-pink-600">83.4</span></div><div class="w-full bg-pink-100 rounded-full h-1.5 mb-1"><div class="bg-pink-500 h-1.5 rounded-full" style="width:83.4%"></div></div><p class="text-xs text-slate-500">Whether report satisfies each requirement in a verified checklist.</p></div>
-<div class="metric-card bg-white border border-slate-200"><div class="flex items-center gap-3 mb-1"><div class="metric-icon" style="background:#fce7f3">&#x1F9E0;</div><div class="font-bold text-sm text-slate-800">DQ &mdash; Depth Quality</div><span class="ml-auto text-sm font-bold text-pink-600">66.5</span></div><div class="w-full bg-pink-100 rounded-full h-1.5 mb-1"><div class="bg-pink-500 h-1.5 rounded-full" style="width:66.5%"></div></div><p class="text-xs text-slate-500">Expert judge evaluates analytical substance on 1-10 scale.</p></div>
-</div></div>
-</div>
-</div>
-</div></section>
-
-<!-- Leaderboard -->
-<section id="leaderboard" class="py-14 px-4"><div class="max-w-6xl mx-auto">
-<h2 class="st">&#x1F3C6; Leaderboard</h2>
-<p class="sd">Evaluation results of 8 state-of-the-art LLMs across 64k/128k/512k sandbox corpus scales.</p>
-
-<div class="flex justify-center gap-2 mb-6">
-<button class="filter-btn active" onclick="filterScale('all',this)">All Scales</button>
-<button class="filter-btn" onclick="filterScale('64k',this)">64k</button>
-<button class="filter-btn" onclick="filterScale('128k',this)">128k</button>
-<button class="filter-btn" onclick="filterScale('512k',this)">512k</button>
-</div>
-
-<div class="bg-white rounded-xl border border-slate-200 overflow-x-auto shadow-sm mb-8">
-<table class="ltable" id="leaderboardTable">
-<thead>
-<tr><th rowspan="2" class="mn" style="min-width:100px">Model</th>
-<th colspan="3" class="s-all s-64k s-128k s-512k" style="background:#eff6ff;color:#1e40af">IR<sub>UF</sub></th>
-<th colspan="3" class="sep s-all s-64k s-128k s-512k" style="background:#eff6ff;color:#1e40af">IR<sub>SC</sub></th>
-<th colspan="3" class="sep s-all s-64k s-128k s-512k" style="background:#dbeafe;color:#1e40af">CC</th>
-<th colspan="3" class="sep s-all s-64k s-128k s-512k" style="background:#fdf2f8;color:#9d174d">FA</th>
-<th colspan="3" class="sep s-all s-64k s-128k s-512k" style="background:#fce7f3;color:#9d174d">IF</th>
-<th colspan="3" class="sep s-all s-64k s-128k s-512k" style="background:#f5f3ff;color:#5b21b6">DQ</th>
-<th colspan="3" class="s-all s-64k s-128k s-512k" style="background:#f0fdf4;color:#166534">Avg.</th></tr>
-<tr>
-<th class="sc sc-64k">64k</th><th class="sc sc-128k">128k</th><th class="sc sc-512k sep">512k</th>
-<th class="sc sc-64k">64k</th><th class="sc sc-128k">128k</th><th class="sc sc-512k sep">512k</th>
-<th class="sc sc-64k">64k</th><th class="sc sc-128k">128k</th><th class="sc sc-512k sep">512k</th>
-<th class="sc sc-64k">64k</th><th class="sc sc-128k">128k</th><th class="sc sc-512k sep">512k</th>
-<th class="sc sc-64k">64k</th><th class="sc sc-128k">128k</th><th class="sc sc-512k sep">512k</th>
-<th class="sc sc-64k">64k</th><th class="sc sc-128k">128k</th><th class="sc sc-512k sep">512k</th>
-<th class="sc sc-64k">64k</th><th class="sc sc-128k">128k</th><th class="sc sc-512k">512k</th>
-</tr>
-</thead>
-<tbody>
-<tr><td class="mn">Claude Sonnet 4</td><td class="best-val sc sc-64k">58.8</td><td class="best-val sc sc-128k">60.4</td><td class="best-val sc sc-512k sep">60.8</td><td class="best-val sc sc-64k">55.3</td><td class="second-val sc sc-128k">46.6</td><td class="second-val sc sc-512k sep">41.8</td><td class="second-val sc sc-64k">64.7</td><td class="second-val sc sc-128k">54.8</td><td class="best-val sc sc-512k sep">48.5</td><td class="best-val sc sc-64k">87.0</td><td class="best-val sc sc-128k">82.7</td><td class="second-val sc sc-512k sep">82.1</td><td class="second-val sc sc-64k">87.4</td><td class="second-val sc sc-128k">89.2</td><td class="second-val sc sc-512k sep">88.5</td><td class="second-val sc sc-64k">70.7</td><td class="second-val sc sc-128k">71.5</td><td class="second-val sc sc-512k sep">72.0</td><td class="best-val sc sc-64k">70.7</td><td class="best-val sc sc-128k">67.5</td><td class="best-val sc sc-512k">65.6</td></tr>
-<tr><td class="mn">GLM-4.7</td><td class="second-val sc sc-64k">55.7</td><td class="second-val sc sc-128k">55.0</td><td class="second-val sc sc-512k sep">57.1</td><td class="second-val sc sc-64k">53.1</td><td class="best-val sc sc-128k">47.6</td><td class="best-val sc sc-512k sep">42.1</td><td class="best-val sc sc-64k">65.4</td><td class="best-val sc sc-128k">55.9</td><td class="second-val sc sc-512k sep">45.3</td><td class="second-val sc sc-64k">84.5</td><td class="second-val sc sc-128k">82.1</td><td class="sc sc-512k sep">80.3</td><td class="best-val sc sc-64k">88.8</td><td class="best-val sc sc-128k">89.3</td><td class="best-val sc sc-512k sep">88.1</td><td class="best-val sc sc-64k">71.1</td><td class="best-val sc sc-128k">71.8</td><td class="best-val sc sc-512k sep">72.1</td><td class="second-val sc sc-64k">69.8</td><td class="second-val sc sc-128k">66.9</td><td class="second-val sc sc-512k">64.1</td></tr>
-<tr><td class="mn">GLM-4.6</td><td class="sc sc-64k">53.4</td><td class="sc sc-128k">52.6</td><td class="sc sc-512k sep">50.3</td><td class="sc sc-64k">49.5</td><td class="sc sc-128k">43.9</td><td class="sc sc-512k sep">39.8</td><td class="sc sc-64k">58.2</td><td class="sc sc-128k">52.0</td><td class="sc sc-512k sep">44.0</td><td class="sc sc-64k">84.0</td><td class="sc sc-128k">82.3</td><td class="best-val sc sc-512k sep">82.9</td><td class="sc sc-64k">85.6</td><td class="sc sc-128k">87.2</td><td class="sc sc-512k sep">86.4</td><td class="sc sc-64k">70.1</td><td class="sc sc-128k">69.3</td><td class="sc sc-512k sep">70.6</td><td class="sc sc-64k">66.8</td><td class="sc sc-128k">64.5</td><td class="sc sc-512k">62.3</td></tr>
-<tr><td class="mn">Gemini-2.5-Pro</td><td class="sc sc-64k">43.9</td><td class="sc sc-128k">45.7</td><td class="sc sc-512k sep">42.9</td><td class="sc sc-64k">37.7</td><td class="sc sc-128k">33.2</td><td class="sc sc-512k sep">30.5</td><td class="sc sc-64k">52.1</td><td class="sc sc-128k">44.3</td><td class="sc sc-512k sep">38.7</td><td class="sc sc-64k">82.5</td><td class="sc sc-128k">80.1</td><td class="sc sc-512k sep">78.9</td><td class="sc sc-64k">86.2</td><td class="sc sc-128k">85.8</td><td class="sc sc-512k sep">84.3</td><td class="sc sc-64k">68.9</td><td class="sc sc-128k">67.2</td><td class="sc sc-512k sep">66.8</td><td class="sc sc-64k">61.9</td><td class="sc sc-128k">59.4</td><td class="sc sc-512k">57.0</td></tr>
-<tr><td class="mn">GPT-4.1</td><td class="sc sc-64k">42.3</td><td class="sc sc-128k">40.8</td><td class="sc sc-512k sep">39.5</td><td class="sc sc-64k">35.2</td><td class="sc sc-128k">31.8</td><td class="sc sc-512k sep">28.4</td><td class="sc sc-64k">48.6</td><td class="sc sc-128k">41.2</td><td class="sc sc-512k sep">35.9</td><td class="sc sc-64k">63.8</td><td class="sc sc-128k">61.5</td><td class="sc sc-512k sep">59.2</td><td class="sc sc-64k">84.9</td><td class="sc sc-128k">83.7</td><td class="sc sc-512k sep">82.1</td><td class="sc sc-64k">65.3</td><td class="sc sc-128k">64.8</td><td class="sc sc-512k sep">63.5</td><td class="sc sc-64k">56.7</td><td class="sc sc-128k">53.9</td><td class="sc sc-512k">51.4</td></tr>
-<tr><td class="mn">Qwen3-235B</td><td class="sc sc-64k">44.1</td><td class="sc sc-128k">43.5</td><td class="sc sc-512k sep">41.2</td><td class="sc sc-64k">38.9</td><td class="sc sc-128k">34.7</td><td class="sc sc-512k sep">31.3</td><td class="sc sc-64k">50.3</td><td class="sc sc-128k">43.8</td><td class="sc sc-512k sep">37.2</td><td class="sc sc-64k">52.4</td><td class="sc sc-128k">50.8</td><td class="sc sc-512k sep">48.6</td><td class="sc sc-64k">85.7</td><td class="sc sc-128k">84.9</td><td class="sc sc-512k sep">83.2</td><td class="sc sc-64k">66.2</td><td class="sc sc-128k">65.1</td><td class="sc sc-512k sep">64.3</td><td class="sc sc-64k">56.3</td><td class="sc sc-128k">53.8</td><td class="sc sc-512k">51.0</td></tr>
-<tr><td class="mn">Qwen3-32B</td><td class="sc sc-64k">38.5</td><td class="sc sc-128k">37.2</td><td class="sc sc-512k sep">35.8</td><td class="sc sc-64k">32.1</td><td class="sc sc-128k">28.5</td><td class="sc sc-512k sep">25.3</td><td class="sc sc-64k">44.7</td><td class="sc sc-128k">38.2</td><td class="sc sc-512k sep">32.5</td><td class="sc sc-64k">58.3</td><td class="sc sc-128k">56.1</td><td class="sc sc-512k sep">53.8</td><td class="sc sc-64k">80.2</td><td class="sc sc-128k">78.9</td><td class="sc sc-512k sep">76.5</td><td class="sc sc-64k">62.8</td><td class="sc sc-128k">61.5</td><td class="sc sc-512k sep">60.2</td><td class="sc sc-64k">52.8</td><td class="sc sc-128k">50.1</td><td class="sc sc-512k">47.4</td></tr>
-<tr><td class="mn">Qwen2.5-72B</td><td class="sc sc-64k">35.2</td><td class="sc sc-128k">34.1</td><td class="sc sc-512k sep">32.5</td><td class="sc sc-64k">29.8</td><td class="sc sc-128k">26.3</td><td class="sc sc-512k sep">23.1</td><td class="sc sc-64k">41.3</td><td class="sc sc-128k">35.7</td><td class="sc sc-512k sep">30.2</td><td class="sc sc-64k">55.1</td><td class="sc sc-128k">53.2</td><td class="sc sc-512k sep">50.8</td><td class="sc sc-64k">78.5</td><td class="sc sc-128k">76.8</td><td class="sc sc-512k sep">74.2</td><td class="sc sc-64k">60.5</td><td class="sc sc-128k">59.2</td><td class="sc sc-512k sep">57.8</td><td class="sc sc-64k">50.1</td><td class="sc sc-128k">47.6</td><td class="sc sc-512k">44.8</td></tr>
-</tbody>
-</table>
-</div>
-
-<div class="grid md:grid-cols-2 gap-3 max-w-5xl mx-auto">
-<div class="fcard" style="border-color:#6b7280;background:#f9fafb"><div class="font-semibold text-slate-700 text-sm mb-1">&#x1F525; Extremely Challenging</div><p class="text-xs text-slate-600">Best model achieves only 65.6 avg under 512k. Scaling law remains key.</p></div>
-<div class="fcard" style="border-color:#6b7280;background:#f9fafb"><div class="font-semibold text-slate-700 text-sm mb-1">&#x1F4C9; Longer Context = Lower Score</div><p class="text-xs text-slate-600">Performance drops as corpus grows 64k→512k. Noise makes evidence harder to find.</p></div>
-<div class="fcard" style="border-color:#6b7280;background:#f9fafb"><div class="font-semibold text-slate-700 text-sm mb-1">&#x26A0;&#xFE0F; IF ≠ FA</div><p class="text-xs text-slate-600">Some models achieve good IF but very low FA. Reports look complete but contain factual errors.</p></div>
-<div class="fcard" style="border-color:#6b7280;background:#f9fafb"><div class="font-semibold text-slate-700 text-sm mb-1">&#x1F310; Domain Performance Varies</div><p class="text-xs text-slate-600">No single model dominates all 13 sub-domains.</p></div>
-</div>
-</div></section>
-
-<!-- Construction -->
-<section id="construction" class="py-14 px-4 bg-slate-50"><div class="max-w-4xl mx-auto">
-<h2 class="st">&#x1F3D7;&#xFE0F; Benchmark Construction</h2>
-<p class="sd">A 5-stage pipeline for realistic, controllable, and precisely evaluable deep research benchmarking.</p>
-<div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm mb-6">
-<img src="static/images/dr3_framework.png" alt="Framework" class="w-full rounded-lg" style="max-height:360px;object-fit:contain;margin:0 auto;display:block">
-</div>
-<div class="stage-card"><h4 class="font-bold text-slate-800 mb-1">&#x1F465; Stage 1: Real-World Grounding</h4>
-<p class="text-sm text-slate-600">Volunteers provide multimodal materials (text, images, video, audio). 100 document sets across 3 domains and 13 sub-fields.</p></div>
-<div class="stage-card"><h4 class="font-bold text-slate-800 mb-1">&#x1F50D; Stage 2: Search Path Distillation</h4>
-<p class="text-sm text-slate-600">Divergent-convergent keyword generation splits into Signal Keywords (core path) and Noise Keywords (misleading).</p></div>
-<div class="stage-card"><h4 class="font-bold text-slate-800 mb-1">&#x1F4E6; Stage 3: Sandbox Construction</h4>
-<p class="text-sm text-slate-600">Static sandbox with Supportive, Distractor, and Noise documents. Five context-length settings (32k–512k).</p></div>
-<div class="stage-card"><h4 class="font-bold text-slate-800 mb-1">&#x2753; Stage 4: Query Construction</h4>
-<p class="text-sm text-slate-600">Queries reverse-engineered from verified evidence, ensuring definitive answers grounded in the sandbox.</p></div>
-<div class="stage-card"><h4 class="font-bold text-slate-800 mb-1">&#x2705; Stage 5: Quality Control</h4>
-<p class="text-sm text-slate-600">Four-dimensional validation: implicit guidance, synthesis necessity, insight novelty, interpretative unambiguity.</p></div>
-</div></section>
-
-<!-- Analysis -->
-<section id="analysis" class="py-14 px-4"><div class="max-w-6xl mx-auto">
-<h2 class="st">&#x1F50D; Result Analysis</h2>
-<p class="sd">Detailed analysis across dimensions, corpus scales, error types, and experimental settings.</p>
-
-<div class="ana-row"><div class="ana-fig bg-white rounded-xl border border-slate-200 p-4 shadow-sm"><img src="static/images/dr3_heatmap.png" alt="Heatmap"></div>
-<div class="ana-info"><h3 class="text-base font-bold mb-1">&#x1F5FA;&#xFE0F; Cross-Domain Heatmap</h3>
-<div class="ana-card" style="border-left:3px solid #94a3b8;background:#f8fafc"><h4 style="color:#475569">&#x1F3C6; Top Performers</h4><p>Claude Sonnet 4 leads Physics (84.6). GLM-4.7 excels in Industry and Policy.</p></div>
-<div class="ana-card" style="border-left:3px solid #94a3b8;background:#f8fafc"><h4 style="color:#475569">&#x1F4C9; Challenging Domains</h4><p>Agriculture and Commerce are hardest across all models.</p></div>
-<div class="ana-card" style="border-left:3px solid #94a3b8;background:#f8fafc"><h4 style="color:#475569">&#x1F310; No Universal Winner</h4><p>No single model dominates all 13 sub-domains.</p></div>
-</div></div>
-
-<div class="ana-row"><div class="ana-fig bg-white rounded-xl border border-slate-200 p-4 shadow-sm"><img src="static/images/dr3_scale_metrics.png" alt="Scale"></div>
-<div class="ana-info"><h3 class="text-base font-bold mb-1">&#x1F4CF; Scale Analysis</h3>
-<div class="ana-card" style="border-left:3px solid #94a3b8;background:#f8fafc"><h4 style="color:#475569">&#x1F4C9; Performance Drops</h4><p>Avg, IR_SC and CC decline as corpus grows from 32k to 512k.</p></div>
-<div class="ana-card" style="border-left:3px solid #94a3b8;background:#f8fafc"><h4 style="color:#475569">&#x1F9E0; FA Stays Stable</h4><p>FA remains stable across scales, reflecting reasoning over retrieval.</p></div>
-<div class="ana-card" style="border-left:3px solid #94a3b8;background:#f8fafc"><h4 style="color:#475569">&#x26A0;&#xFE0F; IF Resilient</h4><p>IF stays high even at 512k, independent of retrieval difficulty.</p></div>
-</div></div>
-
-<div class="ana-row"><div class="ana-fig bg-white rounded-xl border border-slate-200 p-4 shadow-sm"><img src="static/images/dr3_error_types.png" alt="Error Types"></div>
-<div class="ana-info"><h3 class="text-base font-bold mb-1">&#x1F6A8; Error Type Analysis</h3>
-<div class="ana-card" style="border-left:3px solid #94a3b8;background:#f8fafc"><h4 style="color:#475569">&#x1F4A5; Hallucination Dominates</h4><p>48–78% of errors are hallucinations.</p></div>
-<div class="ana-card" style="border-left:3px solid #94a3b8;background:#f8fafc"><h4 style="color:#475569">&#x2705; Gemini-2.5-Pro</h4><p>Lowest hallucination, most retrieval failures.</p></div>
-<div class="ana-card" style="border-left:3px solid #94a3b8;background:#f8fafc"><h4 style="color:#475569">&#x26A0;&#xFE0F; Qwen3-235B</h4><p>78% hallucination despite low retrieval failure.</p></div>
-</div></div>
-
-<div class="ana-row"><div class="ana-fig bg-white rounded-xl border border-slate-200 p-4 shadow-sm"><img src="static/images/dr3_ablation_rag.png" alt="Ablation"></div>
-<div class="ana-info"><h3 class="text-base font-bold mb-1">&#x1F9EA; Sandbox Corpus Effectiveness</h3>
-<div class="ana-card" style="border-left:3px solid #94a3b8;background:#f8fafc"><h4 style="color:#475569">&#x1F4AA; Distractors Work</h4><p>Removing distractors improves performance significantly.</p></div>
-<div class="ana-card" style="border-left:3px solid #94a3b8;background:#f8fafc"><h4 style="color:#475569">&#x1F512; No Shortcuts</h4><p>W/o Supportive ≈ W/o RAG, no exploitable shortcuts.</p></div>
-<div class="ana-card" style="border-left:3px solid #94a3b8;background:#f8fafc"><h4 style="color:#475569">&#x1F4C8; Only Supportive Best</h4><p>Only supportive docs yield highest scores.</p></div>
-</div></div>
-
-<div class="ana-row"><div class="ana-fig bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
-<table class="htable">
-<thead><tr><th rowspan="2" class="mn">Metric</th><th colspan="3" style="background:#eff6ff">Qwen3-235B-A22B</th><th colspan="3" style="background:#fef2f8">Gemini-2.5-Pro</th></tr>
-<tr><th>Baseline</th><th>w/ Web</th><th>Δ</th><th>Baseline</th><th>w/ Web</th><th>Δ</th></tr></thead>
-<tbody>
-<tr><td class="mn">IR<sub>SC</sub></td><td>31.0</td><td>28.1</td><td style="color:#dc2626">-2.8</td><td>32.8</td><td>34.9</td><td style="color:#059669">+2.1</td></tr>
-<tr><td class="mn">IR<sub>UF</sub></td><td>43.6</td><td>47.9</td><td style="color:#059669">+4.3</td><td>36.9</td><td>42.4</td><td style="color:#059669">+5.4</td></tr>
-<tr><td class="mn">FA</td><td>63.3</td><td>65.9</td><td style="color:#059669">+2.6</td><td>75.6</td><td>70.2</td><td style="color:#dc2626">-5.4</td></tr>
-<tr><td class="mn">DQ</td><td>67.0</td><td>65.5</td><td style="color:#dc2626">-1.5</td><td>69.5</td><td>72.0</td><td style="color:#059669">+2.5</td></tr>
-<tr><td class="mn">IF</td><td>73.4</td><td>79.1</td><td style="color:#059669">+5.7</td><td>81.4</td><td>80.4</td><td style="color:#dc2626">-1.0</td></tr>
-<tr style="font-weight:600;border-top:2px solid #e2e8f0"><td class="mn">Avg.</td><td>54.9</td><td>56.6</td><td style="color:#059669">+1.6</td><td>63.1</td><td>62.1</td><td style="color:#dc2626">-1.0</td></tr>
-</tbody></table>
-</div>
-<div class="ana-info"><h3 class="text-base font-bold mb-1">&#x1F310; Sandbox vs. Online</h3>
-<div class="ana-card" style="border-left:3px solid #94a3b8;background:#f8fafc"><h4 style="color:#475569">&#x2248; Minimal Difference</h4><p>Δ &lt; 2 points between sandbox and web search.</p></div>
-<div class="ana-card" style="border-left:3px solid #94a3b8;background:#f8fafc"><h4 style="color:#475569">&#x1F504; Reproducibility</h4><p>Sandbox simulates open-web with reproducibility.</p></div>
-</div></div>
-
-<div class="ana-row"><div class="ana-fig bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
-<table class="htable">
-<thead><tr><th class="mn">Model</th><th style="background:#eff6ff">OpenAI-Emb</th><th style="background:#f0fdf4">Qwen-Emb</th><th style="background:#fef2f8">BM25</th></tr></thead>
-<tbody>
-<tr><td class="mn">GLM-4.7</td><td class="best-val">56.58</td><td>53.61</td><td>50.71</td></tr>
-<tr><td class="mn">GPT-4.1</td><td>36.15</td><td>35.64</td><td>22.60</td></tr>
-<tr><td class="mn">Gemini-2.5-Pro</td><td>49.51</td><td>37.16</td><td>31.25</td></tr>
-</tbody></table>
-</div>
-<div class="ana-info"><h3 class="text-base font-bold mb-1">&#x1F50E; Retriever Comparison</h3>
-<div class="ana-card" style="border-left:3px solid #94a3b8;background:#f8fafc"><h4 style="color:#475569">&#x1F947; Dense Retrieval Wins</h4><p>OpenAI embedding-3-small achieves best performance.</p></div>
-<div class="ana-card" style="border-left:3px solid #94a3b8;background:#f8fafc"><h4 style="color:#475569">&#x1F4C9; BM25 Falls Behind</h4><p>Lexical BM25 significantly worse than dense retrieval.</p></div>
-</div></div>
-
-<div class="ana-row"><div class="ana-fig bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
-<table class="htable">
-<thead><tr><th class="mn">Evaluation Method</th><th style="background:#eff6ff">Pearson <i>r</i></th><th style="background:#f0fdf4">Spearman <i>ρ</i></th><th style="background:#fef2f8">Pairwise Agr.</th></tr></thead>
-<tbody>
-<tr><td class="mn">DR&#xB3;-Eval (Ours)</td><td>0.78</td><td>0.73</td><td>0.89</td></tr>
-<tr><td class="mn">Inter-Human</td><td class="best-val">0.83</td><td class="best-val">0.76</td><td class="best-val">0.91</td></tr>
-</tbody></table>
-</div>
-<div class="ana-info"><h3 class="text-base font-bold mb-1">&#x1F91D; Human Evaluation</h3>
-<div class="ana-card" style="border-left:3px solid #94a3b8;background:#f8fafc"><h4 style="color:#475569">&#x1F91D; Strong Alignment</h4><p>r=0.78, ρ=0.73, agreement 89%.</p></div>
-<div class="ana-card" style="border-left:3px solid #94a3b8;background:#f8fafc"><h4 style="color:#475569">&#x1F465; Near Human Level</h4><p>Approaches inter-human consistency (r=0.83, ρ=0.76).</p></div>
-</div></div>
-</div></section>
-
-<!-- Submit Modal -->
-<div id="submitModal" class="modal-overlay" onclick="if(event.target===this)this.classList.remove('active')">
-<div class="bg-white rounded-2xl p-8 max-w-lg w-full shadow-xl">
-<div class="flex justify-between items-center mb-6"><h3 class="text-xl font-bold">Submit Your Results</h3><button onclick="document.getElementById('submitModal').classList.remove('active')" class="text-slate-400 hover:text-slate-600 text-2xl">&times;</button></div>
-<p class="text-sm text-slate-500 mb-6">Submit your model's results to be included in the DR&#xB3;-Eval leaderboard.</p>
-<form onsubmit="event.preventDefault();alert('Submitted!');document.getElementById('submitModal').classList.remove('active')">
-<div class="mb-4"><label class="block text-sm font-medium text-slate-700 mb-1">Model Name</label><input type="text" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"></div>
-<div class="mb-4"><label class="block text-sm font-medium text-slate-700 mb-1">Organization</label><input type="text" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"></div>
-<div class="mb-4"><label class="block text-sm font-medium text-slate-700 mb-1">Contact Email</label><input type="email" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"></div>
-<div class="mb-6"><label class="block text-sm font-medium text-slate-700 mb-1">Results File (.json)</label><input type="file" accept=".json" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"></div>
-<button type="submit" class="w-full btn-primary py-2.5 rounded-lg font-semibold text-sm">Submit</button>
-</form></div></div>
-
-<!-- Citation -->
-<section class="py-14 px-4 bg-slate-50"><div class="max-w-3xl mx-auto">
-<h2 class="st">&#x1F4D6; Citation</h2>
-<div class="bg-slate-800 text-green-400 rounded-xl p-5 text-xs font-mono overflow-x-auto">
-<pre>@article{xie2026dr,
-  title={DR $^{}${3}$ $-Eval: Towards Realistic and Reproducible Deep Research Evaluation},
-  author={Xie, Qianqian and Xiong, Qingheng and Zhu, He and Xia, Tiantian and Han, Xueming and Meng, Fanyu and Wang, Jiakai and Bai, Zhiqi and Jiang, Chengkang and Wang, Zhaohui and others},
-  journal={arXiv preprint arXiv:2604.14683},
-  year={2026}
-}</pre>
-</div>
-</div></section>
-
-<footer class="py-8 px-4 border-t border-slate-200 text-center text-sm text-slate-400">
-<p>DR&#xB3;-Eval &mdash; NJU-LINK Team</p>
-</footer>
-
-<script src="static/js/i18n.js"></script>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="DR³-Eval: realistic and reproducible evaluation for deep research agents.">
+  <meta property="og:title" content="DR³-Eval">
+  <meta property="og:description" content="Realistic & Reproducible Deep Research Evaluation">
+  <meta property="og:image" content="static/og.png">
+  <title>DR³-Eval · Deep Research Evaluation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{--ink:#f5f7ff;--muted:#a8b1cc;--line:rgba(164,183,255,.16);--blue:#61a7ff;--violet:#9d7cff;--panel:rgba(15,20,43,.68);--bg:#060814}
+    *{box-sizing:border-box} html{scroll-behavior:smooth} body{margin:0;background:var(--bg);color:var(--ink);font-family:Manrope,system-ui,sans-serif;line-height:1.55;overflow-x:hidden}
+    body:before,body:after{content:"";position:fixed;z-index:-2;pointer-events:none;border-radius:50%;filter:blur(40px)}body:before{width:48vw;height:48vw;top:-18vw;left:-13vw;background:rgba(56,107,255,.22)}body:after{width:44vw;height:44vw;right:-18vw;top:24vh;background:rgba(116,59,255,.16)}
+    .grid-bg{position:fixed;inset:0;z-index:-1;opacity:.34;background-image:linear-gradient(rgba(115,142,255,.075) 1px,transparent 1px),linear-gradient(90deg,rgba(115,142,255,.075) 1px,transparent 1px);background-size:48px 48px;mask-image:linear-gradient(#000,transparent 80%)}
+    .wrap{width:min(1180px,calc(100% - 40px));margin:auto}.nav{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:rgba(6,8,20,.78);backdrop-filter:blur(18px)}.navin{height:68px;display:flex;align-items:center;justify-content:space-between;gap:16px}.brand{font-weight:800;letter-spacing:-.04em;font-size:21px;color:#fff;text-decoration:none}.brand sup{font-size:11px;color:var(--blue)}.navlinks{display:flex;gap:22px}.navlinks a{color:var(--muted);font-size:13px;text-decoration:none}.navlinks a:hover{color:#fff}.mini{font:12px 'DM Mono',monospace;color:var(--blue);border:1px solid rgba(97,167,255,.32);padding:7px 10px;border-radius:999px}
+    .hero{padding:104px 0 78px;position:relative}.eyebrow{font:12px 'DM Mono',monospace;letter-spacing:.12em;color:#90bcff;text-transform:uppercase;display:flex;align-items:center;gap:10px}.eyebrow:before{content:"";width:24px;height:1px;background:#90bcff}.hero h1{font-size:clamp(56px,11vw,144px);line-height:.9;letter-spacing:-.08em;margin:22px 0 22px;font-weight:800}.hero h1 sup{font-size:.36em;vertical-align:top;color:#a895ff}.gradient{background:linear-gradient(110deg,#fff 22%,#9bc6ff 55%,#b398ff);-webkit-background-clip:text;color:transparent}.hero-copy{max-width:690px;color:var(--muted);font-size:clamp(17px,2.2vw,22px);margin:0}.actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:34px}.button{display:inline-flex;align-items:center;gap:8px;padding:12px 16px;border-radius:10px;text-decoration:none;font-weight:700;font-size:14px;transition:.2s}.primary{background:linear-gradient(120deg,#477cff,#8b6dff);color:#fff;box-shadow:0 12px 34px rgba(68,99,255,.25)}.primary:hover{transform:translateY(-2px);filter:brightness(1.08)}.ghost{border:1px solid var(--line);color:#d7def8;background:rgba(20,27,55,.42)}.ghost:hover{border-color:#7aa7ff;color:white}.hero-signal{position:absolute;right:4%;top:84px;width:min(360px,32vw);aspect-ratio:1;border:1px solid rgba(132,158,255,.2);border-radius:50%;background:radial-gradient(circle,rgba(112,81,255,.29) 0 2%,transparent 3% 13%,rgba(71,123,255,.06) 14% 15%,transparent 16%);animation:spin 30s linear infinite}.hero-signal:before,.hero-signal:after{content:"";position:absolute;inset:15%;border:1px dashed rgba(137,168,255,.25);border-radius:50%}.hero-signal:after{inset:31%;border-style:solid}@keyframes spin{to{transform:rotate(360deg)}}
+    .stats{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--line);border-radius:16px;background:var(--panel);overflow:hidden}.stat{padding:22px 24px;border-right:1px solid var(--line)}.stat:last-child{border:0}.stat b{display:block;font-size:30px;letter-spacing:-.05em}.stat span{font-size:12px;color:var(--muted);font-family:'DM Mono',monospace}
+    section{padding:88px 0}.kicker{font:12px 'DM Mono',monospace;letter-spacing:.13em;text-transform:uppercase;color:#8fb9ff}.title{font-size:clamp(31px,4vw,49px);letter-spacing:-.055em;line-height:1.05;margin:12px 0 16px}.lede{color:var(--muted);max-width:700px;margin:0 0 35px}.bento{display:grid;grid-template-columns:1.05fr .95fr;gap:16px}.card{border:1px solid var(--line);background:linear-gradient(140deg,rgba(28,35,72,.67),rgba(12,15,34,.7));border-radius:16px;padding:25px;position:relative;overflow:hidden}.card h3{margin:0 0 10px;font-size:20px;letter-spacing:-.035em}.card p{margin:0;color:var(--muted);font-size:14px}.card .num{font:42px 'DM Mono',monospace;color:#dce8ff;margin-bottom:8px}.feature-list{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:22px}.feature{border:1px solid rgba(169,185,255,.13);border-radius:10px;padding:14px;background:rgba(2,5,18,.22)}.feature strong{font-size:13px;display:block;margin-bottom:4px}.feature small{display:block;color:var(--muted);font-size:12px}.metric-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:9px}.metric{padding:15px 11px;border-radius:11px;border:1px solid var(--line);background:rgba(6,10,28,.4)}.metric b{display:block;font-size:16px;color:#fff}.metric span{font-size:11px;color:var(--muted)}
+    .results{background:linear-gradient(180deg,transparent,rgba(44,50,113,.12),transparent)}.rank-head{display:flex;justify-content:space-between;align-items:end;gap:16px}.tabs{display:flex;gap:6px;flex-wrap:wrap}.tab{border:1px solid var(--line);background:transparent;color:var(--muted);padding:8px 11px;border-radius:8px;cursor:pointer;font:12px 'DM Mono',monospace}.tab.active,.tab:hover{background:rgba(94,125,255,.2);color:#fff;border-color:#668dff}.table-wrap{margin-top:24px;border:1px solid var(--line);border-radius:16px;overflow:auto;background:rgba(8,12,29,.65)}table{width:100%;border-collapse:collapse;min-width:780px}th,td{padding:15px 17px;text-align:right;border-bottom:1px solid rgba(165,185,255,.1);font-size:13px}th{font:11px 'DM Mono',monospace;letter-spacing:.06em;color:#91a2ce;text-transform:uppercase}td:first-child,th:first-child{text-align:left;font-weight:700}tbody tr{transition:.2s}tbody tr:hover{background:rgba(80,105,215,.12)}.model{display:flex;align-items:center;gap:10px}.dot{width:7px;height:7px;border-radius:50%;background:#597cff;box-shadow:0 0 12px #597cff}.rank{font:11px 'DM Mono',monospace;color:#7184bd}.score{font-family:'DM Mono',monospace}.top{color:#bca8ff;font-weight:700}.subnote{color:var(--muted);font-size:12px;margin-top:12px}
+    .plots{display:grid;grid-template-columns:1.35fr 1fr;gap:16px}.figure{padding:0}.figure img{width:100%;display:block;filter:saturate(.93) contrast(1.04);background:#fff}.caption{padding:16px 19px;color:var(--muted);font-size:12px}.caption b{color:#edf1ff;display:block;margin-bottom:3px}.evidence{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.flow-step{border-top:2px solid #719cff;padding-top:15px}.flow-step span{font:11px 'DM Mono',monospace;color:#86b0ff}.flow-step h3{font-size:17px;margin:7px 0}.flow-step p{font-size:13px;color:var(--muted);margin:0}.callout{margin-top:32px;border:1px solid rgba(136,118,255,.35);border-radius:14px;padding:22px 24px;background:linear-gradient(100deg,rgba(66,64,161,.23),rgba(11,16,39,.15));display:flex;justify-content:space-between;gap:20px;align-items:center}.callout p{margin:4px 0 0;color:var(--muted);font-size:14px}.footer{border-top:1px solid var(--line);padding:28px 0 42px;color:#7f8aab;font:12px 'DM Mono',monospace}.footerin{display:flex;justify-content:space-between;gap:20px}.footer a{color:#aabff7;text-decoration:none}
+    @media(max-width:800px){.navlinks{display:none}.hero{padding-top:82px}.hero-signal{opacity:.34;right:-12%;top:60px;width:70vw}.stats,.metric-grid{grid-template-columns:repeat(2,1fr)}.stat:nth-child(2){border-right:0}.stat:nth-child(-n+2){border-bottom:1px solid var(--line)}.bento,.plots{grid-template-columns:1fr}.evidence{grid-template-columns:1fr}.feature-list{grid-template-columns:1fr}.rank-head,.callout,.footerin{align-items:flex-start;flex-direction:column}section{padding:66px 0}.wrap{width:min(100% - 28px,1180px)}}
+  </style>
+</head>
+<body>
+<div class="grid-bg"></div>
+<nav class="nav"><div class="wrap navin"><a class="brand" href="#top">DR<sup>3</sup>-Eval</a><div class="navlinks"><a href="#benchmark">Benchmark</a><a href="#results">Results</a><a href="#analysis">Analysis</a><a href="#method">Method</a></div><span class="mini">LATEST PAPER UPDATE</span></div></nav>
+<main id="top">
+  <div class="wrap hero"><div class="hero-signal" aria-hidden="true"></div><div class="eyebrow">A benchmark for deep research agents</div><h1>DR<sup>3</sup><span class="gradient">-Eval</span></h1><p class="hero-copy">A realistic, reproducible benchmark for evaluating how agents retrieve evidence, reason over multimodal files, and write trustworthy research reports.</p><div class="actions"><a class="button primary" href="static/DR3-Eval-latest.pdf" target="_blank">Read latest paper ↗</a><a class="button ghost" href="https://github.com/NJU-LINK/DR3-Eval" target="_blank">View code ↗</a><a class="button ghost" href="https://huggingface.co/datasets/NJU-LINK/DR3-Eval" target="_blank">Get dataset ↗</a></div></div>
+  <div class="wrap stats"><div class="stat"><b>100</b><span>INDEPENDENT TASKS</span></div><div class="stat"><b>13</b><span>ATOMIC DOMAINS</span></div><div class="stat"><b>68%</b><span>MULTIMODAL INPUT</span></div><div class="stat"><b>14</b><span>FRONTIER MODELS</span></div></div>
+  <section id="benchmark"><div class="wrap"><div class="kicker">01 / What is evaluated</div><h2 class="title">Real research is not a clean prompt.</h2><p class="lede">DR³-Eval brings authentic user materials, a controlled evidence space, and noisy retrieval conditions into one reproducible evaluation environment.</p><div class="bento"><article class="card"><div class="num">01—03</div><h3>Three ingredients that make the task real.</h3><p>Every task combines genuine research intent with the evidence conditions that agents face outside a benchmark sandbox.</p><div class="feature-list"><div class="feature"><strong>Authentic user files</strong><small>Multimodal, multi-file materials supplied by real users.</small></div><div class="feature"><strong>Per-case sandbox</strong><small>Supportive documents, distractors, and noise in a fixed corpus.</small></div><div class="feature"><strong>Reverse construction</strong><small>Queries are anchored to verified evidence to reduce ambiguity.</small></div><div class="feature"><strong>Repeatable protocol</strong><small>Stable retrieval space enables fair system comparisons.</small></div></div></article><article class="card"><div class="kicker">Five dimensions</div><h3 style="margin-top:10px">Measure retrieval and reporting separately.</h3><p style="margin-bottom:22px">A report can look complete while missing evidence or making unsupported claims. The metric suite exposes that gap.</p><div class="metric-grid"><div class="metric"><b>IR</b><span>Recall</span></div><div class="metric"><b>CC</b><span>Citations</span></div><div class="metric"><b>FA</b><span>Accuracy</span></div><div class="metric"><b>IF</b><span>Following</span></div><div class="metric"><b>DQ</b><span>Depth</span></div></div><div style="margin-top:28px;color:#b9c4e6;font:12px 'DM Mono',monospace">USER FILES + SANDBOX CORPUS → REPORT QUALITY</div></article></div></div></section>
+  <section id="results" class="results"><div class="wrap"><div class="rank-head"><div><div class="kicker">02 / Updated leaderboard</div><h2 class="title">14 models. One hard evidence space.</h2></div><div class="tabs" role="tablist"><button class="tab active" data-scale="512">512K context</button><button class="tab" data-scale="128">128K context</button><button class="tab" data-scale="64">64K context</button></div></div><p class="lede">The latest paper expands the evaluation from 8 to 14 backbone models. Scores are the average over IR<sub>UF</sub>, IR<sub>SC</sub>, CC, FA, IF, and DQ.</p><div class="table-wrap"><table><thead><tr><th>Model</th><th>IR<sub>UF</sub></th><th>IR<sub>SC</sub></th><th>CC</th><th>FA</th><th>IF</th><th>DQ</th><th>Average</th></tr></thead><tbody id="board"></tbody></table></div><p class="subnote" id="note">512K sandbox corpus · Best overall: GPT-5.5 (71.0). Higher is better.</p></div></section>
+  <section id="analysis"><div class="wrap"><div class="kicker">03 / Diagnostic analysis</div><h2 class="title">Failure modes become visible.</h2><p class="lede">The updated paper makes the benchmark’s central message concrete: extra context adds noise, and instruction compliance is not factual reliability.</p><div class="plots"><figure class="card figure"><img src="static/domain-heatmap.png" alt="Performance across thirteen domains"><figcaption class="caption"><b>Domain variance is substantial.</b>Model strengths shift across technology, economy, and humanities tasks rather than following one universal ranking.</figcaption></figure><div style="display:grid;gap:16px"><figure class="card figure"><img src="static/agent-comparison.png" alt="Comparison between DR3-Agent and DeerFlow"><figcaption class="caption"><b>Agent architecture matters.</b>DR³-Agent better supports evidence acquisition under this controlled, multi-file setting.</figcaption></figure><figure class="card figure"><img src="static/ablation.png" alt="Long context and RAG ablation"><figcaption class="caption"><b>More context is not free.</b>As the sandbox grows, distractors make high-value evidence harder to retrieve.</figcaption></figure></div></div></div></section>
+  <section id="method"><div class="wrap"><div class="kicker">04 / From evidence to score</div><h2 class="title">A closed loop for trustworthy evaluation.</h2><p class="lede">The benchmark preserves the complexity of deep research while keeping every score traceable to a fixed evidence environment.</p><div class="evidence"><article class="flow-step"><span>STAGE 01</span><h3>Ground in real materials</h3><p>Start with authentic user-provided files and the research needs behind them.</p></article><article class="flow-step"><span>STAGE 02</span><h3>Construct a sandbox</h3><p>Build a controlled corpus with evidence, distractions, and realistic noise.</p></article><article class="flow-step"><span>STAGE 03</span><h3>Audit the report</h3><p>Score recall, citations, facts, instruction following, and analytical depth.</p></article></div><div class="callout"><div><strong>Evaluator–human alignment</strong><p>On a 50-report study, automated evaluation closely follows expert assessment: Pearson r = 0.88, Spearman ρ = 0.83, and pairwise agreement = 0.89.</p></div><a class="button ghost" href="static/DR3-Eval-latest.pdf" target="_blank">See methodology ↗</a></div></div></section>
+</main>
+<footer class="footer"><div class="wrap footerin"><span>DR³-Eval · Towards Realistic and Reproducible Deep Research Evaluation</span><span><a href="https://github.com/NJU-LINK/DR3-Eval">GitHub</a> · <a href="https://huggingface.co/datasets/NJU-LINK/DR3-Eval">Hugging Face</a> · <a href="https://arxiv.org/abs/2604.14683">arXiv</a></span></div></footer>
 <script>
-function filterScale(scale, btn) {
-  document.querySelectorAll('.filter-btn').forEach(function(b){ b.classList.remove('active'); });
-  btn.classList.add('active');
-  var table = document.getElementById('leaderboardTable');
-  if (scale === 'all') {
-    table.querySelectorAll('.sc').forEach(function(el){ el.style.display = ''; });
-    table.querySelectorAll('th[colspan]').forEach(function(el){
-      if (el.classList.contains('s-all')) el.setAttribute('colspan', '3');
-    });
-  } else {
-    table.querySelectorAll('.sc').forEach(function(el){ el.style.display = 'none'; });
-    table.querySelectorAll('.sc-' + scale).forEach(function(el){ el.style.display = ''; });
-    table.querySelectorAll('th[colspan]').forEach(function(el){
-      if (el.classList.contains('s-all')) el.setAttribute('colspan', '1');
-    });
-  }
-}
-
-document.addEventListener('DOMContentLoaded', function(){
-  function rgbToHsl(r,g,b){r/=255;g/=255;b/=255;var mx=Math.max(r,g,b),mn=Math.min(r,g,b),h,s,l=(mx+mn)/2;if(mx===mn){h=s=0}else{var d=mx-mn;s=l>.5?d/(2-mx-mn):d/(mx+mn);switch(mx){case r:h=(g-b)/d+(g<b?6:0);break;case g:h=(b-r)/d+2;break;case b:h=(r-g)/d+4;break}h/=6}return[Math.round(h*360),Math.round(s*100),Math.round(l*100)]}
-  function radialColor(hsl,i,t){var l=hsl[2]+(i/(t-1))*28;return'hsl('+hsl[0]+','+hsl[1]+'%,'+Math.min(l,92)+'%)'}
-  function wrapLabel(n,m){m=m||12;var w=n.split(' '),l='',r='';w.forEach(function(x){if((l+x).length>m){r+=l.trim()+'\n';l=x+' '}else{l+=x+' '}});r+=l.trim();return r}
-
-  var hsl={blue:rgbToHsl(87,143,195),gold:rgbToHsl(211,177,104),pink:rgbToHsl(193,123,144)};
-  /* Domain chart - exact copy from domain_vis.html */
-  var oL={show:true,position:'inside',rotate:'radial',fontFamily:'Times New Roman',fontSize:11,color:'#000',formatter:function(p){return wrapLabel(p.name)}};
-  var cL={show:true,position:'inside',rotate:'radial',fontFamily:'Times New Roman',fontSize:11,fontWeight:'bold',color:'#000',lineHeight:12,formatter:function(p){return wrapLabel(p.name)+'\n'+p.percent+'%'}};
-
-  var domainChart=echarts.init(document.getElementById('echartDomain'));
-  domainChart.setOption({tooltip:{show:false},series:[
-    {type:'pie',radius:[0,'35%'],label:cL,labelLine:{show:false},data:[
-      {value:42,name:'Humanities',itemStyle:{color:'rgb(87,143,195)'}},
-      {value:36,name:'Technology',itemStyle:{color:'rgb(211,177,104)'}},
-      {value:22,name:'Economy',itemStyle:{color:'rgb(193,123,144)'}}
-    ]},
-    {type:'pie',radius:['42%','72%'],label:oL,labelLine:{show:false},itemStyle:{borderRadius:6,borderColor:'#fff',borderWidth:4},data:[
-      {value:20,name:'Policy',itemStyle:{color:radialColor(hsl.blue,0,5)}},
-      {value:9,name:'Arts & Culture',itemStyle:{color:radialColor(hsl.blue,1,5)}},
-      {value:8,name:'Education',itemStyle:{color:radialColor(hsl.blue,2,5)}},
-      {value:3,name:'Social',itemStyle:{color:radialColor(hsl.blue,3,5)}},
-      {value:2,name:'Geography',itemStyle:{color:radialColor(hsl.blue,4,5)}},
-      {value:14,name:'Computer Science',itemStyle:{color:radialColor(hsl.gold,0,4)}},
-      {value:11,name:'Healthcare',itemStyle:{color:radialColor(hsl.gold,1,4)}},
-      {value:8,name:'Physics',itemStyle:{color:radialColor(hsl.gold,2,4)}},
-      {value:3,name:'Life Sciences',itemStyle:{color:radialColor(hsl.gold,3,4)}},
-      {value:9,name:'Finance',itemStyle:{color:radialColor(hsl.pink,0,4)}},
-      {value:8,name:'Industry',itemStyle:{color:radialColor(hsl.pink,1,4)}},
-      {value:4,name:'Commerce',itemStyle:{color:radialColor(hsl.pink,2,4)}},
-      {value:1,name:'Agriculture',itemStyle:{color:radialColor(hsl.pink,3,4)}}
-    ]}
-  ]});
-
-  /* File type chart - exact copy from file_vis.html */
-  function wrapC(n,m){m=m||12;var r='',l='';for(var i=0;i<n.length;i++){l+=n[i];if(l.length>=m){r+=l+'\n';l=''}}r+=l;return r}
-  var cLF={show:true,position:'inside',rotate:'radial',fontFamily:'Times New Roman',fontSize:11,fontWeight:'bold',color:'#000',lineHeight:12,align:'center',formatter:function(p){return wrapC(p.name)+'\n'+p.percent+'%'}};
-  var oLF={show:true,position:'inside',rotate:'radial',fontFamily:'Times New Roman',fontSize:11,color:'#000',align:'center',formatter:function(p){return wrapC(p.name)}};
-  var cs=['#9BDFDF','#FFE2CE','#C4D8E9','#F9DF91','#7FA2EE','#BEBCDF'];
-  var oc={Document:['#9BDFDF','#AEEAEA','#83DADA','#5CCCCC','#33BABA'],Image:['#FFE2CE','#FFD3B2','#FFC59A'],Video:['#C4D8E9'],Audio:['#F9DF91'],Data:['#9DBCF5','#87AEEF'],Other:['#BEBCDF']};
-
-  var fileChart=echarts.init(document.getElementById('echartFiletype'));
-  fileChart.setOption({tooltip:{show:false},series:[
-    {type:'pie',radius:[0,'38%'],label:cLF,labelLine:{show:false},data:[
-      {value:103,name:'Document',itemStyle:{color:cs[0]}},{value:62,name:'Image',itemStyle:{color:cs[1]}},
-      {value:31,name:'Video',itemStyle:{color:cs[2]}},{value:4,name:'Audio',itemStyle:{color:cs[3]}},
-      {value:14,name:'Data',itemStyle:{color:'#7FA2EE'}},{value:10,name:'Other',itemStyle:{color:cs[5]}}
-    ]},
-    {type:'pie',radius:['45%','75%'],label:oLF,labelLine:{show:false},itemStyle:{borderRadius:6,borderColor:'#fff',borderWidth:4},data:[
-      {value:76,name:'PDF',itemStyle:{color:oc.Document[0]}},{value:10,name:'Markdown',itemStyle:{color:oc.Document[1]}},
-      {value:7,name:'Word',itemStyle:{color:oc.Document[2]}},{value:5,name:'Text',itemStyle:{color:oc.Document[3]}},
-      {value:5,name:'PPT',itemStyle:{color:oc.Document[4]}},{value:37,name:'PNG',itemStyle:{color:oc.Image[0]}},
-      {value:21,name:'JPEG',itemStyle:{color:oc.Image[1]}},{value:4,name:'WebP',itemStyle:{color:oc.Image[2]}},
-      {value:31,name:'MP4',itemStyle:{color:oc.Video[0]}},{value:4,name:'MP3',itemStyle:{color:oc.Audio[0]}},
-      {value:7,name:'CSV',itemStyle:{color:oc.Data[0]}},{value:7,name:'Excel',itemStyle:{color:oc.Data[1]}},
-      {value:10,name:'HTML',itemStyle:{color:oc.Other[0]}}
-    ]}
-  ]});
-
-  var filesChart=echarts.init(document.getElementById('echartFiles'));
-  filesChart.setOption({
-    tooltip:{trigger:'axis',axisPointer:{type:'shadow'}},
-    grid:{left:'12%',right:'8%',top:'8%',bottom:'15%'},
-    xAxis:{type:'category',data:['1','2','3','4','5','6'],name:'Files',nameLocation:'center',nameGap:28,nameTextStyle:{fontFamily:'Times New Roman',fontSize:13},axisLabel:{fontFamily:'Times New Roman',fontSize:12}},
-    yAxis:{type:'value',name:'Cases',nameTextStyle:{fontFamily:'Times New Roman',fontSize:13},axisLabel:{fontFamily:'Times New Roman',fontSize:12}},
-    series:[{type:'bar',data:[22,35,35,6,1,1],barWidth:'50%',itemStyle:{color:'#8FAFD4',borderRadius:[3,3,0,0]},label:{show:true,position:'top',fontSize:11,fontFamily:'Times New Roman'}}]
-  });
-
-  // Average Score Bar Chart (128k scale) - Ocean Blue Gradient
-  var avgBarChart=echarts.init(document.getElementById('echartAvgBar'));
-  avgBarChart.setOption({
-    title:{text:'Average Score (128k)',left:'center',top:10,textStyle:{fontSize:14,fontWeight:'bold',color:'#1e3a5f'}},
-    tooltip:{trigger:'axis',axisPointer:{type:'shadow'},formatter:function(p){return p[0].name+': '+p[0].value.toFixed(1)}},
-    grid:{left:'3%',right:'10%',top:'15%',bottom:'3%',containLabel:true},
-    xAxis:{type:'value',min:40,max:75,axisLabel:{fontSize:11,color:'#64748b'},splitLine:{lineStyle:{type:'dashed',color:'#e2e8f0'}}},
-    yAxis:{type:'category',data:['Qwen2.5-72B','Qwen3-32B','Qwen3-235B','GPT-4.1','Gemini-2.5-Pro','GLM-4.6','GLM-4.7','Claude Sonnet 4'],axisLabel:{fontSize:11,color:'#475569',fontWeight:function(v,i){return i>=6?'bold':'normal'}},axisTick:{show:false},axisLine:{lineStyle:{color:'#cbd5e1'}}},
-    series:[{type:'bar',data:[
-      {value:47.6,itemStyle:{color:new echarts.graphic.LinearGradient(0,0,1,0,[{offset:0,color:'#bfdbfe'},{offset:1,color:'#93c5fd'}])}},
-      {value:50.1,itemStyle:{color:new echarts.graphic.LinearGradient(0,0,1,0,[{offset:0,color:'#93c5fd'},{offset:1,color:'#60a5fa'}])}},
-      {value:53.8,itemStyle:{color:new echarts.graphic.LinearGradient(0,0,1,0,[{offset:0,color:'#60a5fa'},{offset:1,color:'#3b82f6'}])}},
-      {value:53.9,itemStyle:{color:new echarts.graphic.LinearGradient(0,0,1,0,[{offset:0,color:'#3b82f6'},{offset:1,color:'#2563eb'}])}},
-      {value:59.4,itemStyle:{color:new echarts.graphic.LinearGradient(0,0,1,0,[{offset:0,color:'#2563eb'},{offset:1,color:'#1d4ed8'}])}},
-      {value:64.5,itemStyle:{color:new echarts.graphic.LinearGradient(0,0,1,0,[{offset:0,color:'#1d4ed8'},{offset:1,color:'#1e40af'}])}},
-      {value:66.9,itemStyle:{color:new echarts.graphic.LinearGradient(0,0,1,0,[{offset:0,color:'#1e40af'},{offset:1,color:'#1e3a8a'}])}},
-      {value:67.5,itemStyle:{color:new echarts.graphic.LinearGradient(0,0,1,0,[{offset:0,color:'#1e3a8a'},{offset:1,color:'#172554'}])}}
-    ],barWidth:'55%',itemStyle:{borderRadius:[0,4,4,0]},label:{show:true,position:'right',fontSize:11,fontWeight:'bold',color:'#1e3a5f',formatter:function(p){return p.value.toFixed(1)}}}]
-  });
-
-  window.addEventListener('resize',function(){domainChart.resize();fileChart.resize();filesChart.resize();avgBarChart.resize()});
-});
+const rows={
+  512:[['GPT-5.5',71.5,46.0,51.6,80.5,95.4,80.7,71.0],['GLM-5.1',68.3,48.8,47.2,69.8,88.2,74.6,66.2],['Claude Sonnet 4',60.8,41.8,48.5,82.1,88.5,72.0,65.6],['DeepSeek-V4-Pro',60.5,47.1,46.7,72.5,88.3,74.9,65.0],['GLM-4.7',57.1,42.1,45.3,80.3,88.1,72.1,64.1],['Qwen3.6-Max-Preview',58.3,42.9,46.3,74.0,87.0,72.7,63.5],['GLM-4.6',50.3,39.8,44.0,82.9,86.4,70.6,62.3],['Gemini-2.5-Pro',50.4,37.6,36.6,80.0,84.5,67.4,59.4],['Gemini-2.5-Flash',51.8,34.8,38.6,81.2,82.2,67.8,59.4],['GPT-4.1',41.3,29.2,30.0,58.8,82.7,63.4,50.9]],
+  128:[['GPT-5.5',72.5,51.2,60.4,83.2,95.2,80.3,73.8],['GLM-5.1',65.7,53.2,58.7,71.5,84.7,72.2,67.7],['Claude Sonnet 4',60.4,46.6,54.8,82.7,89.2,71.5,67.5],['DeepSeek-V4-Pro',63.0,50.1,54.2,70.0,85.5,73.9,66.1],['GLM-4.7',55.0,47.6,55.9,82.1,89.3,71.8,66.9],['Qwen3.6-Max-Preview',58.0,48.2,57.3,77.7,87.0,72.3,66.7],['GLM-4.6',52.6,43.9,52.0,82.3,87.2,69.3,64.5],['Gemini-2.5-Pro',53.7,42.4,49.5,80.7,84.5,68.3,63.2],['Gemini-2.5-Flash',52.7,37.0,44.8,82.3,81.0,67.7,60.9],['GPT-4.1',42.5,29.4,35.6,54.2,83.3,63.2,51.3]],
+  64:[['GPT-5.5',73.8,55.2,66.8,82.7,95.1,80.5,75.7],['DeepSeek-V4-Pro',69.0,58.8,63.0,78.4,90.0,76.4,72.6],['GLM-5.1',64.5,54.8,65.1,75.1,86.2,72.4,69.7],['Claude Sonnet 4',58.8,55.3,64.7,87.0,87.4,70.7,70.7],['GLM-4.7',55.7,53.1,65.4,84.5,88.8,71.1,69.8],['Qwen3.6-Max-Preview',58.8,51.2,62.5,82.2,88.5,73.1,69.4],['GLM-4.6',53.4,49.5,58.2,84.0,85.6,70.1,66.8],['Gemini-2.5-Pro',52.7,44.8,54.3,81.3,84.9,67.1,64.2],['Gemini-2.5-Flash',50.7,42.9,48.8,86.1,78.8,66.1,62.2],['GPT-4.1',40.7,30.9,37.2,56.4,83.0,63.1,51.9]]};
+const board=document.querySelector('#board'),note=document.querySelector('#note');function render(scale){board.innerHTML=rows[scale].map((r,i)=>`<tr><td><div class="model"><span class="rank">${String(i+1).padStart(2,'0')}</span><i class="dot"></i>${r[0]}</div></td>${r.slice(1).map((v,j)=>`<td class="score ${j===6&&i===0?'top':''}">${v.toFixed(1)}</td>`).join('')}</tr>`).join('');note.textContent=`${scale}K sandbox corpus · Best overall: ${rows[scale][0][0]} (${rows[scale][0][7].toFixed(1)}). Higher is better.`}render(512);document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{document.querySelector('.tab.active').classList.remove('active');b.classList.add('active');render(b.dataset.scale)});
 </script>
 </body></html>
